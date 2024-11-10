@@ -53,3 +53,50 @@ Next, we will run **fastqc** (https://www.bioinformatics.babraham.ac.uk/projects
 <img src="https://github.com/user-attachments/assets/f25deace-2cef-4ec6-89b1-3d752fe7fab4" alt="fastqc_per_base_sequence" width="430"/>
 
 The overrepresented sequences tab suggests that the TruSeq universal Illumina adapters are causing significant read contamination. To deal with this we can use **Trimmomatic** (http://www.usadellab.org/cms/?page=trimmomatic), a java-based adapter trimming tool that comes pre-packaged with Illumina TruSeq.fa files. Since I am on windows, I am using Windows Subsystem for Linux (https://learn.microsoft.com/en-us/windows/wsl/install) to run this command.
+
+**From the Trimmomatic User Guide:**
+
+<img src="https://github.com/user-attachments/assets/fc0d8000-2952-4ee0-9fef-6edecb10ab8a" alt="fastqc_per_base_sequence" width="430"/>
+
+"For paired-end data, two input files, and 4 output files are specified, 2 for the 'paired' output where both reads survived the processing, and 2 for corresponding 'unpaired' output where a read survived, but the partner read did not."
+
+"java -jar <path to trimmomatic.jar> PE [-threads <threads] [-phred33 | -phred64] [-trimlog <logFile>] >] [-basein <inputBase> | <input 1> <input 2>] [-baseout <outputBase> | <unpaired output 1> <paired output 2> <unpaired output 2> <step 1> ..."
+
+run_trimmomatic.sh:
+```bash
+#!/bin/bash
+
+# Set the input and output directories
+input_dir="/path/Projects/Trimming"  # Change this to your input directory
+output_dir="/path/Projects/Trimming" # Change this to your output directory
+
+# Set the adapter file location
+adapter_file="/path/Projects/Trimming/Trimmomatic-0.39/adapters/TruSeq3-PE.fa"
+
+# Loop over the files and run Trimmomatic
+for file1 in "$input_dir"/*_1.fastq.gz; do
+    # Get the corresponding _2 file
+    file2="${file1/_1.fastq.gz/_2.fastq.gz}"
+
+    # Check if both _1 and _2 files exist
+    if [ -f "$file2" ]; then
+        # Extract the base name (without the _1 and _2 suffixes)
+        base_name=$(basename "$file1" _1.fastq.gz)
+
+        # Run Trimmomatic
+        java -jar /home/humza/Projects/Trimming/Trimmomatic-0.39/trimmomatic-0.39.jar PE -threads 4 -phred33 \
+            -trimlog "$output_dir/trimlog.txt" \
+            "$file1" "$file2" \
+            "$output_dir/${base_name}_1_paired.fastq.gz" \
+            "$output_dir/${base_name}_1_unpaired.fastq.gz" \
+            "$output_dir/${base_name}_2_paired.fastq.gz" \
+            "$output_dir/${base_name}_2_unpaired.fastq.gz" \
+            ILLUMINACLIP:"$adapter_file":2:30:10 MINLEN:15
+
+        echo "Trimming completed for $file1 and $file2"
+    else
+        echo "Skipping $file1 as the corresponding pair $file2 was not found"
+    fi
+done
+
+```
