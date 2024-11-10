@@ -66,37 +66,45 @@ run_trimmomatic.sh:
 ```bash
 #!/bin/bash
 
-# Set the input and output directories
-input_dir="/path/Projects/Trimming"  # Change this to your input directory
-output_dir="/path/Projects/Trimming" # Change this to your output directory
+# Define directories
+FASTQ_DIR="/path/fastqs"
+OUTPUT_DIR="/path/outputs"
+TRIMMOMATIC_JAR="/path/Trimmomatic-0.39/trimmomatic-0.39.jar"
+ADAPTER_FILE="/path/Trimmomatic-0.39/adapters/TruSeq3-PE.fa"
 
-# Set the adapter file location
-adapter_file="/path/Projects/Trimming/Trimmomatic-0.39/adapters/TruSeq3-PE.fa"
+# Create output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
 
-# Loop over the files and run Trimmomatic
-for file1 in "$input_dir"/*_1.fastq.gz; do
+# Loop through all _1.fastq.gz files in the fastqs directory
+for FILE1 in "$FASTQ_DIR"/*_1.fastq.gz; do
     # Get the corresponding _2 file
-    file2="${file1/_1.fastq.gz/_2.fastq.gz}"
+    FILE2="${FILE1/_1.fastq.gz/_2.fastq.gz}"
 
-    # Check if both _1 and _2 files exist
-    if [ -f "$file2" ]; then
-        # Extract the base name (without the _1 and _2 suffixes)
-        base_name=$(basename "$file1" _1.fastq.gz)
+    # Check if corresponding _2 file exists
+    if [ -f "$FILE2" ]; then
+        # Get the base name (e.g., SRR14646315)
+        BASE_NAME=$(basename "$FILE1" _1.fastq.gz)
 
-        # Run Trimmomatic
-        java -jar /home/humza/Projects/Trimming/Trimmomatic-0.39/trimmomatic-0.39.jar PE -threads 4 -phred33 \
-            -trimlog "$output_dir/trimlog.txt" \
-            "$file1" "$file2" \
-            "$output_dir/${base_name}_1_paired.fastq.gz" \
-            "$output_dir/${base_name}_1_unpaired.fastq.gz" \
-            "$output_dir/${base_name}_2_paired.fastq.gz" \
-            "$output_dir/${base_name}_2_unpaired.fastq.gz" \
-            ILLUMINACLIP:"$adapter_file":2:30:10 MINLEN:15
+        # Define output file names
+        OUTPUT_1_PAIRED="$OUTPUT_DIR/${BASE_NAME}_1_paired.fastq.gz"
+        OUTPUT_1_UNPAIRED="$OUTPUT_DIR/${BASE_NAME}_1_unpaired.fastq.gz"
+        OUTPUT_2_PAIRED="$OUTPUT_DIR/${BASE_NAME}_2_paired.fastq.gz"
+        OUTPUT_2_UNPAIRED="$OUTPUT_DIR/${BASE_NAME}_2_unpaired.fastq.gz"
+        LOG_FILE="$OUTPUT_DIR/${BASE_NAME}_trimlog.txt"
 
-        echo "Trimming completed for $file1 and $file2"
+        # Run Trimmomatic for the pair
+        java -jar "$TRIMMOMATIC_JAR" PE -threads 4 -phred33 \
+            -trimlog "$LOG_FILE" \
+            "$FILE1" "$FILE2" \
+            "$OUTPUT_1_PAIRED" "$OUTPUT_1_UNPAIRED" \
+            "$OUTPUT_2_PAIRED" "$OUTPUT_2_UNPAIRED" \
+            ILLUMINACLIP:"$ADAPTER_FILE":2:30:10 \
+            SLIDINGWINDOW:5:20 \
+            MINLEN:50
     else
-        echo "Skipping $file1 as the corresponding pair $file2 was not found"
+        echo "Warning: No corresponding _2.fastq.gz file found for $FILE1"
     fi
 done
+
 
 ```
