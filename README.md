@@ -62,6 +62,17 @@ The overrepresented sequences tab suggests that the TruSeq universal Illumina ad
 
 "java -jar <path to trimmomatic.jar> PE [-threads <threads] [-phred33 | -phred64] [-trimlog <logFile>] >] [-basein <inputBase> | <input 1> <input 2>] [-baseout <outputBase> | <unpaired output 1> <paired output 2> <unpaired output 2> <step 1> ..."
 
+**Trimmomatic Parameters:**
+
+ILLUMINACLIP:"$ADAPTER_FILE":2:30:10
+Removes adapter sequences based on the provided adapter file. Allows up to 2 mismatches, with trimming occurring if the adapter has a quality score of 30 or above.
+
+SLIDINGWINDOW:5:20
+Trims bases from the read if the average quality score in a sliding window of 5 bases is below 20.
+
+MINLEN:50
+Discards reads that are shorter than 50 bases after trimming.
+
 run_trimmomatic.sh:
 ```bash
 #!/bin/bash
@@ -108,3 +119,17 @@ done
 
 
 ```
+Forward reads before versus after running Trimmomatic:
+
+<img src="https://github.com/user-attachments/assets/f41e2a9b-0888-4c00-bfb5-24ecb786a12e" alt="fastqc_per_base_sequence" width="420"/>
+<img src="https://github.com/user-attachments/assets/61b91373-32d2-4f8a-b956-8ac9dca02589" alt="fastqc_per_base_sequence" width="430"/>
+
+Reverse reads before versus after running Trimmomatic:
+
+<img src="https://github.com/user-attachments/assets/be3b858e-a99b-4c3c-86af-6c236d4ee0f7" alt="fastqc_per_base_sequence" width="430"/>
+<img src="https://github.com/user-attachments/assets/1162a7de-cf2e-43d9-93ca-76fb8685423d" alt="fastqc_per_base_sequence" width="415"/>
+
+Adapter content before versus after running Trimmomatic:
+
+<img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" width="420"/>
+<img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" width="420"/>
