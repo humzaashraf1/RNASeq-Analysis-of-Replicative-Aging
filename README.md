@@ -48,15 +48,15 @@ echo All downloads complete.
 ```
 Next, we will run **fastqc** (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) to determine which adapters are present from the Illumina sequencing. After downloading the release, I unzipped the root and executed the run_fastqc.bat file. This prompted me to load in an unzipped fastq file, creating a quality control report in the GUI:
 
-<img src="https://github.com/user-attachments/assets/afa60f81-15d7-43e7-8812-a4a0c4182b61" alt="fastqc_per_base_sequence" width="430"/>
+<img src="https://github.com/user-attachments/assets/afa60f81-15d7-43e7-8812-a4a0c4182b61" alt="fastqc_per_base_sequence" width="400"/>
 
-<img src="https://github.com/user-attachments/assets/f25deace-2cef-4ec6-89b1-3d752fe7fab4" alt="fastqc_per_base_sequence" width="430"/>
+<img src="https://github.com/user-attachments/assets/f25deace-2cef-4ec6-89b1-3d752fe7fab4" alt="fastqc_per_base_sequence" width="400"/>
 
 The overrepresented sequences tab suggests that the TruSeq universal Illumina adapters are causing significant read contamination. To deal with this we can use **Trimmomatic** (http://www.usadellab.org/cms/?page=trimmomatic), a java-based adapter trimming tool that comes pre-packaged with Illumina TruSeq.fa files. Since I am on windows, I am using Windows Subsystem for Linux (https://learn.microsoft.com/en-us/windows/wsl/install) to run this command.
 
 **From the Trimmomatic User Guide:**
 
-<img src="https://github.com/user-attachments/assets/fc0d8000-2952-4ee0-9fef-6edecb10ab8a" alt="fastqc_per_base_sequence" width="430"/>
+<img src="https://github.com/user-attachments/assets/fc0d8000-2952-4ee0-9fef-6edecb10ab8a" alt="fastqc_per_base_sequence" width="400"/>
 
 "For paired-end data, two input files, and 4 output files are specified, 2 for the 'paired' output where both reads survived the processing, and 2 for corresponding 'unpaired' output where a read survived, but the partner read did not."
 
@@ -121,17 +121,17 @@ done
 ```
 Forward reads before versus after running Trimmomatic:
 
-<img src="https://github.com/user-attachments/assets/f41e2a9b-0888-4c00-bfb5-24ecb786a12e" alt="fastqc_per_base_sequence" width="420"/>
-<img src="https://github.com/user-attachments/assets/61b91373-32d2-4f8a-b956-8ac9dca02589" alt="fastqc_per_base_sequence" width="430"/>
+<img src="https://github.com/user-attachments/assets/f41e2a9b-0888-4c00-bfb5-24ecb786a12e" alt="fastqc_per_base_sequence" width="400"/>
+<img src="https://github.com/user-attachments/assets/61b91373-32d2-4f8a-b956-8ac9dca02589" alt="fastqc_per_base_sequence" width="400"/>
 
 Reverse reads before versus after running Trimmomatic:
 
-<img src="https://github.com/user-attachments/assets/be3b858e-a99b-4c3c-86af-6c236d4ee0f7" alt="fastqc_per_base_sequence" width="430"/>
-<img src="https://github.com/user-attachments/assets/1162a7de-cf2e-43d9-93ca-76fb8685423d" alt="fastqc_per_base_sequence" width="415"/>
+<img src="https://github.com/user-attachments/assets/be3b858e-a99b-4c3c-86af-6c236d4ee0f7" alt="fastqc_per_base_sequence" width="400"/>
+<img src="https://github.com/user-attachments/assets/1162a7de-cf2e-43d9-93ca-76fb8685423d" alt="fastqc_per_base_sequence" width="400"/>
 
 Adapter content before versus after running Trimmomatic:
 
-<img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" width="420"/>
-<img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" width="420"/>
+<img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" width="400"/>
+<img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" width="400"/>
 
 <sub> Portions of code in this repository were generated with the assistance of ChatGPT, a LLM developed by OpenAI.</sub>
