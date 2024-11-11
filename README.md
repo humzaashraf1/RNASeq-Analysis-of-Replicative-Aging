@@ -134,4 +134,22 @@ Adapter content before versus after running Trimmomatic:
 <img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" height = "285" width="400"/>
 <img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" height = "285" width="400"/>
 
+After trimming our reads, we are ready to map our reads and generate a counts matrix. An efficient way to do this for gene expression is through an open-source tool called Salmon (https://combine-lab.github.io/salmon/). Salmon performs quasi-mapping directly on the transcriptome, greatly reducing the computational resources required to process our data. The best way to access Salmon is through Bioconda on a Linux OS. There is a good tutorial in their documentation for getting the enviornment set up. The first step is to download the human transcriptome and create an index (in a directory of your choice):
+
+```bash
+curl ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz -o homosap.fa.gz
+```
+```bash
+salmon index -t homosap.fa.gz -i homosap_index
+```
+After creating our Conda-env, we can call on Salmon by passing our index file, forward and reverse reads, and a directory to write the output:
+```bash
+salmon quant -i /path/homosap_index \
+-l A \
+-1 /path/outputs/SRRID_1_paired.fastq.gz \
+-2 /path/outputs/SRRID_2_paired.fastq.gz \
+-p 8 \
+--validateMappings \
+-o /path/salmon_output
+```
 <sub> Portions of code in this repository were generated with the assistance of ChatGPT, a LLM developed by OpenAI.</sub>
