@@ -131,7 +131,7 @@ Reverse reads before versus after running Trimmomatic:
 
 Adapter content before versus after running Trimmomatic:
 
-<img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" height = "300" width="425"/>
-<img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" height = "300" width="425"/>
+<img src="https://github.com/user-attachments/assets/ee26dda5-41a5-4f98-b443-b71d9dd1bacb" alt="fastqc_per_base_sequence" height = "285" width="400"/>
+<img src="https://github.com/user-attachments/assets/38d28309-c9d2-470b-b40d-053efdf677f3" alt="fastqc_per_base_sequence" height = "285" width="400"/>
 
 <sub> Portions of code in this repository were generated with the assistance of ChatGPT, a LLM developed by OpenAI.</sub>
