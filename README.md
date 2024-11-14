@@ -201,4 +201,43 @@ for FILE1 in "$PAIRED_FASTQ_DIR"/*_1_paired.fastq.gz; do
     fi
 done
 ```
+Next, we can compile our quant.sf outputs for each sample using **pytximport** (https://pytximport.readthedocs.io/en/dev/start.html). I created a conda enviornment with WSL and wrote a small script in python to aggregate and export the raw data to a single csv file for all the samples:
+```python
+from pytximport import tximport
+from pytximport.utils import create_transcript_gene_map
+import pandas as pd
+import os
+
+quant_files = []
+salmon_path = '/path/salmon_output'
+for folder in os.listdir(salmon_path):
+    quant_path = salmon_path + '/' + folder + '/' + 'quant.sf'
+    quant_files.append(quant_path)
+
+transcript_gene_map = create_transcript_gene_map(species="human")
+
+results = tximport(
+    file_paths=quant_files,
+    data_type="salmon",
+    transcript_gene_map=transcript_gene_map
+)
+
+expression_df = pd.DataFrame(
+    results.X.toarray() if hasattr(results.X, "toarray") else results.X,
+    index=results.obs.index, 
+    columns=results.var.index
+)
+combined_df = pd.concat([results.obs, expression_df], axis=1)
+combined_df.to_csv("counts_matrix.csv")
+```
+The output should look something like this:
+|                 | ENSG00000123457 | ENSG00000123458 | ENSG00000123459 | ENSG00000123460 | ... |
+|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
+| Sample1            | 12.56           | 99.67           | 5.23            | 23.45           | ...          |
+| Sample2            | 8.43            | 87.34           | 3.67            | 19.23           | ...           |
+| Sample3            | 1.23            | 56.89           | 8.67            | 34.56           | ...           |
+| Sample4            | 3.45            | 67.89           | 2.34            | 0.00            | ...            |
+| ...                | 0.00            | 45.67           | 6.78            | 22.33           | ...            |
+
+We can use this table as an input for differential gene-expression analysis to **pydeseq2** (https://pydeseq2.readthedocs.io/en/latest/), a python implementation of DeSeq2 in R. The basic idea behind
 <sub> Portions of code in this repository were generated with the assistance of ChatGPT, a LLM developed by OpenAI.</sub>
