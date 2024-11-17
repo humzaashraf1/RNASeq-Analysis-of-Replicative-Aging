@@ -158,7 +158,7 @@ salmon quant -i /path/homosap_index \
 --validateMappings \
 -o /path/salmon_output
 ```
-Here is a bash script to achieve the same result for a folder of paired reads:
+Here is a bash script to achieve the same result for a folder of paired reads (run_salmon.sh):
 ```bash
 #!/bin/bash
 
@@ -201,7 +201,7 @@ for FILE1 in "$PAIRED_FASTQ_DIR"/*_1_paired.fastq.gz; do
     fi
 done
 ```
-Next, we can compile our quant.sf outputs for each sample using **pytximport** (https://pytximport.readthedocs.io/en/dev/start.html). I created a conda enviornment with WSL and wrote a small script in python to aggregate and export the raw data to a single csv file for all the samples:
+Next, we can compile our quant.sf outputs for each sample using **pytximport** (https://pytximport.readthedocs.io/en/dev/start.html). I created a conda enviornment with WSL and wrote a small script in python to aggregate and export the raw data to a single csv file for all the samples (get_expression.py):
 ```python
 from pytximport import tximport
 from pytximport.utils import create_transcript_gene_map
@@ -242,5 +242,68 @@ The output should look something like this:
 We can use this table as an input for differential gene-expression analysis to **pydeseq2** (https://pydeseq2.readthedocs.io/en/latest/), a python implementation of DeSeq2 in R. Differential gene expression analysis involves comparing sample-specific mean expression levels to global mean expression levels across multiple replicates. This approach identifies genes that are statistically significantly enriched or depleted under different biological conditions. The paper describing the method can be found here: https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8
 <img src="https://github.com/user-attachments/assets/09d28e56-f887-410e-8c42-2257c0531e9f" alt="10" height = "300" width="600"/>
 
+run_deseq2.ipynb:
+```python
+import pandas as pd
+from pydeseq2.dds import DeseqDataSet
+from pydeseq2.default_inference import DefaultInference
+from pydeseq2.ds import DeseqStats
 
+counts_df = pd.read_csv('/path/counts_matrix.csv')
+counts_df.rename(columns={'Unnamed: 0': 'SampleID'}, inplace=True)
+
+data = {
+    "Sample Name": [
+        "hTERT_TP1", "hTERT_TP1", "hTERT_TP1",
+        "hTERT_TP5", "hTERT_TP5", "hTERT_TP5",
+        "RS_PDL20_TP1", "RS_PDL20_TP1", "RS_PDL20_TP1",
+        "RS_PDL50_TP8", "RS_PDL50_TP8", "RS_PDL50_TP8"
+    ],
+    "SRA ID": [
+        "SRR14646263", "SRR14646264", "SRR14646265",
+        "SRR14646272", "SRR14646273", "SRR14646274",
+        "SRR14646293", "SRR14646294", "SRR14646295",
+        "SRR14646311", "SRR14646312", "SRR14646313"
+    ]
+}
+data_df = pd.DataFrame(data)
+
+counts_df["SRA ID"] = counts_df["SampleID"].str.extract(r'/([^/]+)/quant\.sf$')[0]
+
+metadata = counts_df.merge(data_df, on="SRA ID", how="left")
+metadata = metadata[["SRA ID", "Sample Name"]].rename(columns={"Sample Name": "condition"})
+
+gene_names = pd.DataFrame(counts_df.columns, columns=["Gene Names"])
+gene_names = gene_names[~gene_names["Gene Names"].isin(["SRA ID", "SampleID"])]
+
+counts_df = counts_df.drop(columns=["SRA ID", "SampleID"])
+counts_df.columns = range(counts_df.shape[1])
+counts_df = counts_df.round().astype(int)
+counts_df = counts_df.apply(pd.to_numeric, errors="raise")
+```
+With the data correctly formatted and the relevant metadata extracted, we can set up the deseq model:
+```python
+inference = DefaultInference(n_cpus=8)
+dds = DeseqDataSet(
+    counts=counts_df,
+    metadata=metadata,
+    design_factors="condition",
+    refit_cooks=True,
+    inference=inference,
+)
+
+dds.deseq2()
+
+dds.obs
+```
+To get the statistically significant differential gene expression for a pair of samples:
+```python
+stat_res = DeseqStats(dds, contrast = ('condition','hTERT-TP1','hTERT-TP5'))
+stat_res.summary()
+res = stat_res.results_df
+res['ensembl'] = gene_names['Gene Names'].values
+
+sigs = res[(res.padj < 0.05) & (abs(res.log2FoldChange) > 0.5)]
+sigs
+```
 <sub> Portions of code in this repository were generated with the assistance of ChatGPT, a LLM developed by OpenAI.</sub>
