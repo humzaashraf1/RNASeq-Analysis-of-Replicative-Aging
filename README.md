@@ -49,7 +49,7 @@ echo All downloads complete.
 After downloading, it is a good practice to clear your cache to not run into future issues with SRA-queries. To do this, navigate to your /path/SRAToolKit/bin folder and run the following command:
 
 ```
-vdb-config
+vdb-config -i
 ```
 
 Next, we will run **fastqc** (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) to determine which adapters are present from the Illumina sequencing. After downloading the release, I unzipped the root and executed the run_fastqc.bat file. This prompted me to load in an unzipped fastq file, creating a quality control report in the GUI:
